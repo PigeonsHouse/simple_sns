@@ -1,0 +1,13 @@
+-- Your SQL goes here
+ALTER TABLE "users" ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP; 
+ALTER TABLE "users" ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+CREATE FUNCTION set_update_time() RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        NEW.updated_at := now();
+        return NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trig_update_user BEFORE UPDATE ON "users" FOR EACH ROW EXECUTE PROCEDURE set_update_time();
